@@ -16,9 +16,10 @@ services:
       - ./broker/log:/mosquitto/log
     restart: unless-stopped
 
-  # TODO: create Dockerfile and add back
-  # cloud:
-  #   build: cloud
-  #   ports:
-  #     # TODO: to be decided, probably 80
-  #   restart: unless-stopped
+  cloud:
+    build: cloud
+    ports:
+      - 1880:1880
+    volumes:
+      - ./cloud/data:/data
+    restart: unless-stopped
