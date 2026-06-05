@@ -21,5 +21,8 @@ services:
     ports:
       - 1880:1880
     volumes:
+      # persistent data
       - ./cloud/data:/data
+      # protobuf definitions
+      - ./shared/message.proto:/message.proto
     restart: unless-stopped
