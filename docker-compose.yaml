@@ -13,12 +13,18 @@ services:
       - 1883:1883
       - 9001:9001
     volumes:
-      # mosquitto stock
       - ./broker/config:/mosquitto/config
       - ./broker/data:/mosquitto/data
       - ./broker/log:/mosquitto/log
-      # http_dir
-      - ./broker/http:/mosquitto/http
+    restart: unless-stopped
+
+  mqtt-monitor:
+    image: nginx:mainline-alpine
+    user: root
+    ports:
+      - 80:80
+    volumes:
+      - ./mqtt-monitor/html:/usr/share/nginx/html:ro
     restart: unless-stopped
 
   cloud:
