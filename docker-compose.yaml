@@ -1,0 +1,24 @@
+services:
+  gateway:
+    build: gateway
+    # ports:
+    # TODO: to be decided
+    restart: unless-stopped
+
+  broker:
+    image: eclipse-mosquitto:alpine
+    ports:
+      - 1883:1883
+      # TODO: add ports for websockets
+    volumes:
+      - ./broker/config:/mosquitto/config
+      - ./broker/data:/mosquitto/data
+      - ./broker/log:/mosquitto/log
+    restart: unless-stopped
+
+  # TODO: create Dockerfile and add back
+  # cloud:
+  #   build: cloud
+  #   ports:
+  #     # TODO: to be decided, probably 80
+  #   restart: unless-stopped
