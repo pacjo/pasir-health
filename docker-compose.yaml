@@ -9,11 +9,14 @@ services:
     image: eclipse-mosquitto:alpine
     ports:
       - 1883:1883
-      # TODO: add ports for websockets
+      - 9001:9001
     volumes:
+      # mosquitto stock
       - ./broker/config:/mosquitto/config
       - ./broker/data:/mosquitto/data
       - ./broker/log:/mosquitto/log
+      # http_dir
+      - ./broker/http:/mosquitto/http
     restart: unless-stopped
 
   cloud:
