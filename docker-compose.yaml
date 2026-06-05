@@ -1,12 +1,14 @@
 services:
   gateway:
     build: gateway
+    user: root
     # ports:
     # TODO: to be decided
     restart: unless-stopped
 
   broker:
     image: eclipse-mosquitto:alpine
+    user: root
     ports:
       - 1883:1883
       - 9001:9001
@@ -21,6 +23,7 @@ services:
 
   cloud:
     build: cloud
+    user: root
     ports:
       # data in
       - 6000:6000/udp

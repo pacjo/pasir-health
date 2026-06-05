@@ -16,3 +16,4 @@
 ## TODO:
 
 - [ ] actually implement stuff
+- [ ] maybe figure out permissions instead of running all containers as root
