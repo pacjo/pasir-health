@@ -19,6 +19,9 @@ services:
   cloud:
     build: cloud
     ports:
+      # data in
+      - 6000:6000/udp
+      # dashboard
       - 1880:1880
     volumes:
       # persistent data
