@@ -1,6 +1,5 @@
 var host = window.location.hostname;
 var port = 80;
-var path = "/mqtt";
 
 var mqtt;
 var connected = false;
@@ -10,7 +9,7 @@ var maxLogRows = 200;
 function connect() {
   var clientId = "monitor_" + Math.random().toString(16).substring(2, 10);
 
-  mqtt = new Paho.MQTT.Client(host, port, path, clientId);
+  mqtt = new Paho.MQTT.Client(host, port, clientId);
   mqtt.onConnectionLost = onConnectionLost;
   mqtt.onMessageArrived = onMessageArrived;
 
@@ -22,7 +21,7 @@ function connect() {
     onFailure: onConnectFailure,
   };
 
-  console.log("connecting to " + host + ":" + port + path);
+  console.log("connecting to " + host + ":" + port);
   mqtt.connect(options);
 }
 
