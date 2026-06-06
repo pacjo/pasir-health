@@ -2,12 +2,13 @@ import socket
 
 from .logger import *
 
+HOST = "0.0.0.0"
 PORT = 5000
 BUFFER_SIZE = 1024
 
 # create UDP socket
 sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-sock.bind((socket.INADDR_ANY, PORT))
+sock.bind((HOST, PORT))
 
 
 def handle_data(data: bytes, addr) -> None:
