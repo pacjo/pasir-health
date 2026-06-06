@@ -12,8 +12,8 @@
     </head>
     <body>
         <div class="container">
-            <!-- banner -->
-            <div class="uptime-banner" id="uptimeBanner">
+            <!-- uptime banner -->
+            <div class="uptime-banner">
                 <div>
                     <div class="label">Broker Uptime</div>
                     <div class="value" id="uptimeValue">--</div>
@@ -66,42 +66,68 @@
 
             <!-- more (load) metrics -->
             <div class="load-section">
-                <div class="section-title">Real-time Load</div>
+                <div class="load-section-header">
+                    <div class="section-title">Real-time Load</div>
+                    <select class="interval-select" id="intervalSelect">
+                        <option value="1min">1 minute</option>
+                        <option value="5min">5 minutes</option>
+                        <option value="15min">15 minutes</option>
+                    </select>
+                </div>
+                <!-- below we're defaulting to /1min, changes to other intervals will be reflected via js -->
                 <div class="load-containers">
                     <div class="load-bar">
-                        <span class="lbl">Messages Received / 1min</span>
+                        <span class="label" id="labelMsgsRecv"
+                            >Messages Recv / 1min</span
+                        >
                         <span class="val" id="loadMsgsRecv">0</span>
                     </div>
                     <div class="load-bar">
-                        <span class="lbl">Bytes Received / 1min</span>
+                        <span class="label" id="labelBytesRecv"
+                            >Bytes Recv / 1min</span
+                        >
                         <span class="val" id="loadBytesRecv">0</span>
                     </div>
                     <div class="load-bar">
-                        <span class="lbl">Connections / 1min</span>
+                        <span class="label" id="labelConns"
+                            >Connections / 1min</span
+                        >
                         <span class="val" id="loadConns">0</span>
                     </div>
                     <div class="load-bar">
-                        <span class="lbl">Messages Sent / 1min</span>
+                        <span class="label" id="labelMsgsSent"
+                            >Messages Sent / 1min</span
+                        >
                         <span class="val" id="loadMsgsSent">0</span>
                     </div>
                     <div class="load-bar">
-                        <span class="lbl">Bytes Sent / 1min</span>
+                        <span class="label" id="labelBytesSent"
+                            >Bytes Sent / 1min</span
+                        >
                         <span class="val" id="loadBytesSent">0</span>
                     </div>
                     <div class="load-bar">
-                        <span class="lbl">Sockets / 1min</span>
+                        <span class="label" id="labelSocks"
+                            >Sockets / 1min</span
+                        >
                         <span class="val" id="loadSocks">0</span>
                     </div>
                     <div class="load-bar">
-                        <span class="lbl">Publish Received / 1min</span>
+                        <span class="label" id="labelPubRecv"
+                            >Publish Recv / 1min</span
+                        >
                         <span class="val" id="loadPubRecv">0</span>
                     </div>
                     <div class="load-bar">
-                        <span class="lbl">Publish Sent / 1min</span>
+                        <span class="label" id="labelPubSent"
+                            >Publish Sent / 1min</span
+                        >
                         <span class="val" id="loadPubSent">0</span>
                     </div>
                     <div class="load-bar">
-                        <span class="lbl">Publish Dropped / 1min</span>
+                        <span class="label" id="labelPubDrop"
+                            >Publish Dropped / 1min</span
+                        >
                         <span class="val" id="loadPubDrop">0</span>
                     </div>
                 </div>

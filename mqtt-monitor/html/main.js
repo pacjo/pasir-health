@@ -1,6 +1,6 @@
-// var host = "broker"; // use docker dns
-var host = "192.168.122.97"; // TODO: for testing, remove
-var port = 9001;
+var host = window.location.hostname;
+var port = 80;
+var path = "/mqtt";
 
 var mqtt;
 var connected = false;
@@ -8,10 +8,9 @@ var reconnectTimeout = 2000;
 var maxLogRows = 200;
 
 function connect() {
-  // TODO: understand
   var clientId = "monitor_" + Math.random().toString(16).substring(2, 10);
 
-  mqtt = new Paho.MQTT.Client(host, port, clientId);
+  mqtt = new Paho.MQTT.Client(host, port, path, clientId);
   mqtt.onConnectionLost = onConnectionLost;
   mqtt.onMessageArrived = onMessageArrived;
 
@@ -23,7 +22,7 @@ function connect() {
     onFailure: onConnectFailure,
   };
 
-  console.log("connecting to " + host + ":" + port);
+  console.log("connecting to " + host + ":" + port + path);
   mqtt.connect(options);
 }
 
@@ -119,40 +118,55 @@ function updateMetrics(topic, payload) {
     case "$SYS/broker/heap/maximum":
       $("#heapMax").text(formatBytes(payload));
       break;
+  }
 
-    // load/*
-    // TODO: add a dropdown with time interval selection
-    case "$SYS/broker/load/messages/received/1min":
-      $("#loadMsgsRecv").text(payload);
-      break;
-    case "$SYS/broker/load/messages/sent/1min":
-      $("#loadMsgsSent").text(payload);
-      break;
-    case "$SYS/broker/load/bytes/received/1min":
-      $("#loadBytesRecv").text(payload);
-      break;
-    case "$SYS/broker/load/bytes/sent/1min":
-      $("#loadBytesSent").text(payload);
-      break;
-    case "$SYS/broker/load/publish/received/1min":
-      $("#loadPubRecv").text(payload);
-      break;
-    case "$SYS/broker/load/publish/sent/1min":
-      $("#loadPubSent").text(payload);
-      break;
-    case "$SYS/broker/load/publish/dropped/1min":
-      $("#loadPubDrop").text(payload);
-      break;
-    case "$SYS/broker/load/connections/1min":
-      $("#loadConns").text(payload);
-      break;
-    case "$SYS/broker/load/sockets/1min":
-      $("#loadSocks").text(payload);
-      break;
+  // load/* - match by prefix
+  if (topic.startsWith("$SYS/broker/load/")) {
+    handleLoadMetric(topic, payload);
   }
 }
 
-// logs
+function handleLoadMetric(topic, payload) {
+  var id = null;
+  if (topic.includes("messages/received")) id = "loadMsgsRecv";
+  else if (topic.includes("messages/sent")) id = "loadMsgsSent";
+  else if (topic.includes("bytes/received")) id = "loadBytesRecv";
+  else if (topic.includes("bytes/sent")) id = "loadBytesSent";
+  else if (topic.includes("publish/received")) id = "loadPubRecv";
+  else if (topic.includes("publish/sent")) id = "loadPubSent";
+  else if (topic.includes("publish/dropped")) id = "loadPubDrop";
+  else if (topic.includes("connections")) id = "loadConns";
+  else if (topic.includes("sockets")) id = "loadSocks";
+
+  // only process the currently selected interval
+  if (!new RegExp("/" + loadInterval + "$").test(topic)) return;
+
+  // drop topics we're not interested in
+  if (id) $("#" + id).text(payload);
+}
+
+var loadInterval = "1min";
+function setLoadInterval(interval) {
+  loadInterval = interval;
+
+  var labels = {
+    "messages/received": ["labelMsgsRecv", "Messages Recv"],
+    "messages/sent": ["labelMsgsSent", "Messages Sent"],
+    "bytes/received": ["labelBytesRecv", "Bytes Recv"],
+    "bytes/sent": ["labelBytesSent", "Bytes Sent"],
+    "publish/received": ["labelPubRecv", "Publish Recv"],
+    "publish/sent": ["labelPubSent", "Publish Sent"],
+    "publish/dropped": ["labelPubDrop", "Publish Dropped"],
+    connections: ["labelConns", "Connections"],
+    sockets: ["labelSocks", "Sockets"],
+  };
+
+  for (var key in labels) {
+    $("#" + labels[key][0]).text(labels[key][1] + " / " + loadInterval);
+  }
+}
+
+// ── logs ────────────────────────────────────
 function updateLogs(topic, payload) {
   // if we're updating, then we have something
   // hide the empty state and show the table
@@ -230,4 +244,9 @@ function formatBytes(n) {
 // auto-connect on page load
 $(document).ready(function () {
   connect();
+
+  // set load interval change callback
+  $("#intervalSelect").on("change", function () {
+    setLoadInterval(this.value);
+  });
 });
