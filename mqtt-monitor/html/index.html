@@ -1,11 +1,141 @@
-<html>
+<!doctype html>
+<html lang="en">
     <head>
-        <title>MQTT Broker monitoring</title>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>MQTT Broker Monitor</title>
         <!-- dependencies -->
         <script src="jquery.js" type="text/javascript"></script>
         <script src="mqttws31.min.js" type="text/javascript"></script>
+        <!-- style -->
+        <link rel="stylesheet" href="main.css" />
+    </head>
+    <body>
+        <div class="container">
+            <!-- banner -->
+            <div class="uptime-banner" id="uptimeBanner">
+                <div>
+                    <div class="label">Broker Uptime</div>
+                    <div class="value" id="uptimeValue">--</div>
+                </div>
+                <div class="broker-version" id="brokerVersion">--</div>
+            </div>
+
+            <!-- metrics -->
+            <div class="cards-grid">
+                <div class="card">
+                    <div class="card-label">Connected Clients</div>
+                    <div class="card-value green" id="clientsConnected">--</div>
+                    <div class="card-sub">
+                        max: <span id="clientsMax">--</span> &middot; total:
+                        <span id="clientsTotal">--</span>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-label">Messages Received</div>
+                    <div class="card-value blue" id="msgsReceived">--</div>
+                </div>
+                <div class="card">
+                    <div class="card-label">Messages Sent</div>
+                    <div class="card-value teal" id="msgsSent">--</div>
+                </div>
+                <div class="card">
+                    <div class="card-label">Messages Stored</div>
+                    <div class="card-value purple" id="msgsStored">--</div>
+                </div>
+                <div class="card">
+                    <div class="card-label">Subscriptions</div>
+                    <div class="card-value green" id="subsCount">--</div>
+                </div>
+                <div class="card">
+                    <div class="card-label">Bytes Received</div>
+                    <div class="card-value blue" id="bytesReceived">--</div>
+                </div>
+                <div class="card">
+                    <div class="card-label">Bytes Sent</div>
+                    <div class="card-value teal" id="bytesSent">--</div>
+                </div>
+                <div class="card">
+                    <div class="card-label">Heap Memory</div>
+                    <div class="card-value purple" id="heapCurrent">--</div>
+                    <div class="card-sub">
+                        max: <span id="heapMax">--</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- more metrics -->
+            <div class="load-section">
+                <div class="section-title">Real-time Load</div>
+                <div class="load-containers">
+                    <div class="load-bar">
+                        <span class="lbl">Messages Received / 1min</span>
+                        <span class="val" id="loadMsgsRecv">0</span>
+                    </div>
+                    <div class="load-bar">
+                        <span class="lbl">Bytes Received / 1min</span>
+                        <span class="val" id="loadBytesRecv">0</span>
+                    </div>
+                    <div class="load-bar">
+                        <span class="lbl">Connections / 1min</span>
+                        <span class="val" id="loadConns">0</span>
+                    </div>
+                    <div class="load-bar">
+                        <span class="lbl">Messages Sent / 1min</span>
+                        <span class="val" id="loadMsgsSent">0</span>
+                    </div>
+                    <div class="load-bar">
+                        <span class="lbl">Bytes Sent / 1min</span>
+                        <span class="val" id="loadBytesSent">0</span>
+                    </div>
+                    <div class="load-bar">
+                        <span class="lbl">Sockets / 1min</span>
+                        <span class="val" id="loadSocks">0</span>
+                    </div>
+                    <div class="load-bar">
+                        <span class="lbl">Publish Received / 1min</span>
+                        <span class="val" id="loadPubRecv">0</span>
+                    </div>
+                    <div class="load-bar">
+                        <span class="lbl">Publish Sent / 1min</span>
+                        <span class="val" id="loadPubSent">0</span>
+                    </div>
+                    <div class="load-bar">
+                        <span class="lbl">Publish Dropped / 1min</span>
+                        <span class="val" id="loadPubDrop">0</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ═══ RAW MESSAGE LOG ═══ -->
+            <div class="log-section">
+                <div class="log-header">
+                    <div class="section-title">Raw $SYS Messages</div>
+                </div>
+                <div class="log-container" id="logContainer">
+                    <div class="log-empty" id="logEmpty">
+                        No messages yet. Connect to a Mosquitto broker to start
+                        monitoring.
+                    </div>
+                    <table
+                        class="log-table"
+                        id="logTable"
+                        style="display: none"
+                    >
+                        <thead>
+                            <tr>
+                                <th style="width: 140px">Timestamp</th>
+                                <th>Topic</th>
+                                <th>Payload</th>
+                            </tr>
+                        </thead>
+                        <tbody id="logBody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
         <!-- main script -->
         <script src="main.js" type="text/javascript"></script>
-    </head>
-    <body></body>
+    </body>
 </html>
