@@ -40,5 +40,5 @@ services:
       # persistent data
       - ./cloud/data:/data
       # protobuf definitions
-      - ./shared/message.proto:/message.proto
+      - ./shared/protobuf:/protobuf
     restart: unless-stopped
