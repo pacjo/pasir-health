@@ -65,6 +65,7 @@ var metrics = {};
 function updateMetrics(topic, payload) {
   metrics[topic] = payload;
 
+  // based on: https://mosquitto.org/man/mosquitto-8.html
   switch (topic) {
     // broker info
     case "$SYS/broker/version":
@@ -164,6 +165,8 @@ function updateLogs(topic, payload) {
     "." +
     String(now.getMilliseconds()).padStart(3, "0");
 
+  // this beauty is the fault of the formatter
+  // I'm blaming Prettier.
   var row =
     "<tr>" +
     "<td>" +
