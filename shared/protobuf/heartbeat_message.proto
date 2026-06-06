@@ -1,0 +1,5 @@
+syntax = "proto2";
+
+message HeartbeatMessage {
+  required uint32 heartbeat = 1;
+}

@@ -1,0 +1,11 @@
+syntax = "proto2";
+
+message SleepMessage {
+  enum sleep_type {
+    AWAKE = 0;
+    LIGHT_SLEEP = 1;
+    DEEP_SLEEP = 2;
+    REM = 3;
+  }
+  required sleep_type sleepType = 1;
+}

@@ -1,6 +1,0 @@
-syntax = "proto2";
-
-// TODO: replace with actual message definition
-message Message {
-  required string data = 1;
-}
