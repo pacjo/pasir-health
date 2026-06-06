@@ -1,5 +1,5 @@
 syntax = "proto2";
 
 message AlertMessage {
-  required string AlertType = 1;
+  required string alerttype = 1;
 }

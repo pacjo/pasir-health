@@ -3,5 +3,5 @@ syntax = "proto2";
 message IdleMessage {
   required double longitude = 1;
   required double latitude = 2;
-  required uint32 stepsCount = 3;
+  required uint32 stepscount = 3;
 }
