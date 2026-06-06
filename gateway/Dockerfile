@@ -1,5 +1,8 @@
 FROM python:3
 
+# disable buffering
+ENV PYTHONUNBUFFERED=1
+
 WORKDIR /app
 
 COPY requirements.txt .

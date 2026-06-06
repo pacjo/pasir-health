@@ -16,6 +16,7 @@ def handle_data(data: bytes, addr) -> None:
 
 
 if __name__ == "__main__":
+    logi("Gateway started")
     while True:
         try:
             data, addr = sock.recvfrom(BUFFER_SIZE)
