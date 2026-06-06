@@ -2,8 +2,8 @@ services:
   gateway:
     build: gateway
     user: root
-    # ports:
-    # TODO: to be decided
+    ports:
+      - 5000:5000/udp
     restart: unless-stopped
 
   broker:
