@@ -1,12 +1,12 @@
 syntax = "proto2";
 
 message ActivityMessage {
-  enum activity_type {
+  enum ActivityType {
     SWIMMING = 0;
     RUNNING = 1;
     TENNIS = 2;
     GOTHIC = 3;
   }
-  required uint32 burntCalories = 1;
-  required activity_type activityType = 2;
+  required uint32 burnt_calories = 1;
+  required ActivityType activity_type = 2;
 }
