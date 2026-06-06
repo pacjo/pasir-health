@@ -4,7 +4,7 @@ var port = 80;
 var mqtt;
 var connected = false;
 var reconnectTimeout = 2000;
-var maxLogRows = 200;
+var maxLogRows = 1000;
 
 function connect() {
   var clientId = "monitor_" + Math.random().toString(16).substring(2, 10);
@@ -30,8 +30,11 @@ function onConnect() {
   connected = true;
   console.log("connected");
 
-  // subscribe to all $SYS topics
+  // subscribe to all $SYS topics (for metrics)
   mqtt.subscribe("$SYS/#", { qos: 0 });
+
+  // and all others (for log)
+  mqtt.subscribe("#", { qos: 0 });
 }
 
 function onConnectFailure(response) {
