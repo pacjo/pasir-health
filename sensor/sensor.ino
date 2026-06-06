@@ -9,6 +9,11 @@
 #define SLEEP_PERIOD     6000 // 300000 // 5 min
 #define PACKET_BUFFER_SIZE 256
 
+#define HEARTBEAT 0
+#define IDLE 1
+#define ACTIVITY 2
+#define SLEEP 3
+
 #ifndef USER_ID
 #define USER_ID 1 
 #endif
@@ -30,11 +35,13 @@ enum sleep_type : uint8_t {
 };
 
 struct __attribute__((packed)) HeartbeatMessage{
+  uint8_t messageType;
   uint16_t userId;
   uint8_t heartbeat;
 };
 
 struct __attribute__((packed)) IdleMessage{
+  uint8_t messageType;
   uint16_t userId;
   double longitude;
   double latitude;
@@ -42,12 +49,14 @@ struct __attribute__((packed)) IdleMessage{
 };
 
 struct __attribute__((packed)) ActivityMessage{
+  uint8_t messageType;
   uint16_t userId;
   uint8_t burntCalories;
   activity_type activityType;
 };
 
 struct __attribute__((packed)) SleepMessage{
+  uint8_t messageType;
   uint16_t userId;
   sleep_type sleepType;
 };
@@ -76,6 +85,7 @@ void ReadHeartBeat() {
   heartbeat = ZsutAnalog0Read();
 
   HeartbeatMessage msg;
+  msg.messageType = HEARTBEAT;
   msg.userId = USER_ID; 
   msg.heartbeat = heartbeat;
 
@@ -99,6 +109,7 @@ void ReadIdle() {
 
   // Saving the data to struct
   IdleMessage msg;
+  msg.messageType = IDLE;
   msg.userId = USER_ID; 
   msg.longitude = longitude;
   msg.latitude = latitude;
@@ -142,6 +153,7 @@ void ReadActivity(uint16_t activity) {
   }
 
   ActivityMessage msg;
+  msg.messageType = ACTIVITY;
   msg.userId = USER_ID; 
   msg.burntCalories = burntCalories;
   msg.activityType = activityType;
@@ -181,6 +193,7 @@ void ReadSleep() {
 
 
   SleepMessage msg;
+  msg.messageType = SLEEP;
   msg.userId = USER_ID; 
   msg.sleepType = sleepType;
   
