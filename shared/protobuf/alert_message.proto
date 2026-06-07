@@ -1,5 +1,11 @@
 syntax = "proto2";
 
 message AlertMessage {
-  required string alerttype = 1;
+  enum AlertType {
+    NO_HEARTBEAT = 0;
+    LOCALIZATION_OUT_OF_BOUNDS = 1;
+    STROKE = 2;
+    HEART_ATTACK = 3;
+  }
+  required AlertType alert_type = 1;
 }
