@@ -110,18 +110,102 @@ def cleanup_stale_sensors() -> None:
         )
 
 
-def publish_proto(sensor_id: int, msg_type: int, payload: bytes) -> None:
-    type_name = MsgType(msg_type).topic_name
-    user_id = sensor_user_map.get(sensor_id)
-    topic = f"{type_name}/{user_id}/{sensor_id}"
-
-    client.publish(topic, payload)
-
-
 def get_user_state(user_id: int) -> dict:
     if user_id not in user_state:
         user_state[user_id] = {"steps": 0}
     return user_state[user_id]
+
+
+def aggregate(
+    msg_type: int, data: bytes, user_id: int, sensor_id: int, addr
+) -> object | None:
+    try:
+        match msg_type:
+            case MsgType.ACTIVITY:
+                if len(data) < struct.calcsize(FMT_ACTIVITY):
+                    loge(f"Short activity frame ({len(data)} B) from {addr}")
+                    return None
+                _, burnt_cal, activity_val = struct.unpack(FMT_ACTIVITY, data)
+                msg = activity_message_pb2.ActivityMessage()
+                msg.burnt_calories = burnt_cal
+                msg.activity_type = activity_val
+                logd(
+                    f"Activity | sensor={sensor_id}"
+                    f" user={user_id} cal={burnt_cal} type={activity_val}"
+                )
+                return msg
+
+            case MsgType.HEARTRATE:
+                if len(data) < struct.calcsize(FMT_HEARTRATE):
+                    loge(f"Short heartrate frame ({len(data)} B) from {addr}")
+                    return None
+                if random.randint(0, 100) < 10:
+                    # we're doing an alert
+                    msg = alert_message_pb2.AlertMessage()
+                    msg.alert_type = (
+                        alert_message_pb2.AlertMessage.AlertType.HEART_ATTACK
+                    )
+                    encode_and_publish(sensor_id, MsgType.ALERT, msg)
+                    logd(f"Alert | sensor={sensor_id} type={msg.alert_type}")
+                    return None
+
+                _, heartrate = struct.unpack(FMT_HEARTRATE, data)
+                msg = heartrate_message_pb2.HeartrateMessage()
+                msg.heartrate = heartrate
+                logd(f"Heartrate | sensor={sensor_id} user={user_id} bpm={heartrate}")
+                return msg
+
+            case MsgType.IDLE:
+                if len(data) < struct.calcsize(FMT_IDLE):
+                    loge(f"Short idle frame ({len(data)} B) from {addr}")
+                    return None
+                if random.randint(0, 100) < 10:
+                    # we're doing an alert
+                    msg = alert_message_pb2.AlertMessage()
+                    msg.alert_type = alert_message_pb2.AlertMessage.AlertType.LOCALIZATION_OUT_OF_BOUNDS
+                    encode_and_publish(sensor_id, MsgType.ALERT, msg)
+                    logd(f"Alert | sensor={sensor_id} type={msg.alert_type}")
+                    return None
+
+                _, longitude, latitude, delta_steps = struct.unpack(FMT_IDLE, data)
+                state = get_user_state(user_id)
+                state["steps"] += delta_steps
+                msg = idle_message_pb2.IdleMessage()
+                msg.longitude = longitude
+                msg.latitude = latitude
+                msg.steps_count = state["steps"]
+                logd(
+                    f"Idle | sensor={sensor_id}"
+                    f" user={user_id}"
+                    f" lon={longitude:.4f} lat={latitude:.4f}"
+                    f" +{delta_steps} steps (total={state['steps']})"
+                )
+                return msg
+
+            case MsgType.SLEEP:
+                if len(data) < struct.calcsize(FMT_SLEEP):
+                    loge(f"Short sleep frame ({len(data)} B) from {addr}")
+                    return None
+                _, sleep_val = struct.unpack(FMT_SLEEP, data)
+                msg = sleep_message_pb2.SleepMessage()
+                msg.sleep_type = sleep_val
+                logd(f"Sleep | sensor={sensor_id} user={user_id} type={sleep_val}")
+                return msg
+
+            case _:
+                logw(f"Unknown message type {msg_type:#04x} from {addr}")
+                return None
+
+    except struct.error as e:
+        loge(f"Unpack failed for type={msg_type:#04x} from {addr}: {e}")
+        return None
+
+
+def encode_and_publish(sensor_id: int, msg_type: int, message) -> None:
+    type_name = MsgType(msg_type).topic_name
+    user_id = sensor_user_map.get(sensor_id)
+    topic = f"{type_name}/{user_id}/{sensor_id}"
+    client.publish(topic, message.SerializeToString())
 
 
 def handle_data(data: bytes, addr) -> None:
@@ -161,89 +245,9 @@ def handle_data(data: bytes, addr) -> None:
     mark_sensor_as_seen(sensor_id)
     user_id = sensor_user_map.get(sensor_id)
 
-    # actual data
-    message = None
-    try:
-        match msg_type:
-            case MsgType.ACTIVITY:
-                if len(data) < struct.calcsize(FMT_ACTIVITY):
-                    loge(f"Short activity frame ({len(data)} B) from {addr}")
-                    return
-                _, burnt_cal, activity_val = struct.unpack(FMT_ACTIVITY, data)
-                message = activity_message_pb2.ActivityMessage()
-                message.burnt_calories = burnt_cal
-                message.activity_type = activity_val
-                logd(
-                    f"Activity | sensor={sensor_id}"
-                    f" user={user_id} cal={burnt_cal} type={activity_val}"
-                )
-
-            case MsgType.HEARTRATE:
-                if len(data) < struct.calcsize(FMT_HEARTRATE):
-                    loge(f"Short heartrate frame ({len(data)} B) from {addr}")
-                    return
-                # before we do anything, let's see if we want to forward Heartrate or throw an alert
-                if random.randint(0, 100) < 10:
-                    # we're doing an alert
-                    message = alert_message_pb2.AlertMessage()
-                    message.alert_type = (
-                        alert_message_pb2.AlertMessage.AlertType.HEART_ATTACK
-                    )
-                    publish_proto(sensor_id, MsgType.ALERT, message.SerializeToString())
-                    logd(f"Alert | sensor={sensor_id} type={message.alert_type}")
-                    return
-
-                _, heartrate = struct.unpack(FMT_HEARTRATE, data)
-                message = heartrate_message_pb2.HeartrateMessage()
-                message.heartrate = heartrate
-                logd(f"Heartrate | sensor={sensor_id} user={user_id} bpm={heartrate}")
-
-            case MsgType.IDLE:
-                if len(data) < struct.calcsize(FMT_IDLE):
-                    loge(f"Short idle frame ({len(data)} B) from {addr}")
-                    return
-                # before we do anything, let's see if we want to forward Idle or throw an alert
-                if random.randint(0, 100) < 10:
-                    # we're doing an alert
-                    message = alert_message_pb2.AlertMessage()
-                    message.alert_type = alert_message_pb2.AlertMessage.AlertType.LOCALIZATION_OUT_OF_BOUNDS
-                    publish_proto(sensor_id, MsgType.ALERT, message.SerializeToString())
-                    logd(f"Alert | sensor={sensor_id} type={message.alert_type}")
-                    return
-
-                _, longitude, latitude, delta_steps = struct.unpack(FMT_IDLE, data)
-                state = get_user_state(user_id)
-                state["steps"] += delta_steps
-                message = idle_message_pb2.IdleMessage()
-                message.longitude = longitude
-                message.latitude = latitude
-                message.steps_count = state["steps"]
-                logd(
-                    f"Idle | sensor={sensor_id}"
-                    f" user={user_id}"
-                    f" lon={longitude:.4f} lat={latitude:.4f}"
-                    f" +{delta_steps} steps (total={state['steps']})"
-                )
-
-            case MsgType.SLEEP:
-                if len(data) < struct.calcsize(FMT_SLEEP):
-                    loge(f"Short sleep frame ({len(data)} B) from {addr}")
-                    return
-                _, sleep_val = struct.unpack(FMT_SLEEP, data)
-                message = sleep_message_pb2.SleepMessage()
-                message.sleep_type = sleep_val
-                logd(f"Sleep | sensor={sensor_id} user={user_id} type={sleep_val}")
-
-            case _:
-                logw(f"Unknown message type {msg_type:#04x} from {addr}")
-                return
-
-    except struct.error as e:
-        loge(f"Unpack failed for type={msg_type:#04x} from {addr}: {e}")
-        return
-
-    else:
-        publish_proto(sensor_id, msg_type, message.SerializeToString())
+    message = aggregate(msg_type, data, user_id, sensor_id, addr)
+    if message is not None:
+        encode_and_publish(sensor_id, msg_type, message)
 
 
 # TODO: use network byte-order
