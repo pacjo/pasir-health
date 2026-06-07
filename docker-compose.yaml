@@ -1,6 +1,8 @@
 services:
   gateway:
-    build: gateway
+    build:
+      context: .
+      dockerfile: ./gateway/Dockerfile
     user: root
     ports:
       - 5000:5000/udp
