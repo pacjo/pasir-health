@@ -10,21 +10,21 @@
 #define REGISTRATION   0x5
 #define NOT_REGISTERED 0x6
 
-enum activity_type : uint8_t {
+enum ActivityType : uint8_t {
   SWIMMING,
   RUNNING,
   TENNIS,
   GOTHIC
 };
 
-enum alert_type : uint8_t {
+enum AlertType : uint8_t {
   NO_HEARTBEAT,
   LOCALIZATION_OUT_OF_BOUNDS,
   STROKE,
   HEART_ATTACK
 };
 
-enum sleep_type : uint8_t {
+enum SleepType : uint8_t {
   AWAKE,
   LIGHT_SLEEP,
   DEEP_SLEEP,
@@ -39,12 +39,12 @@ struct __attribute__((packed)) RegistrationMessage {
 struct __attribute__((packed)) ActivityMessage {
   uint8_t messageType;
   uint8_t burntCalories;
-  activity_type activityType;
+  ActivityType activityType;
 };
 
 struct __attribute__((packed)) AlertMessage {
   uint8_t messageType;
-  alert_type alertType;
+  AlertType alertType;
 };
 
 struct __attribute__((packed)) HeartbeatMessage {
@@ -61,5 +61,5 @@ struct __attribute__((packed)) IdleMessage {
 
 struct __attribute__((packed)) SleepMessage {
   uint8_t messageType;
-  sleep_type sleepType;
+  SleepType sleepType;
 };

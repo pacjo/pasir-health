@@ -22,7 +22,7 @@ uint16_t stepsCount = 0;
 float longitude = 0;
 float latitude = 0;
 uint16_t activity = 0;
-activity_type activityType = SWIMMING;
+ActivityType activityType = SWIMMING;
 
 unsigned long HeartbeatTime = 0;
 unsigned long IdleTime = 0;
@@ -122,7 +122,7 @@ void ReadActivity(uint16_t activity) {
 }
 
 void ReadSleep() {
-  sleep_type sleepType;
+  SleepType sleepType;
   uint16_t sleepValue = ZsutAnalog5Read();
   sleepType = (sleepValue < 200) ? AWAKE :
               (sleepValue < 500) ? LIGHT_SLEEP :
