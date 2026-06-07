@@ -26,7 +26,7 @@
 # 07:00 (252 000 ms) - Waking up
 : 252000000, sSleepMode, 0
 : 252000000, qHeartbeat, 75
-: 252000000, qStepsSleep, 150
+: 252000000, qStepsSleep, 20
 
 # 08:00 (288 000 ms) - Jog
 : 288000000, qActivityType, 200
@@ -38,7 +38,7 @@
 # 08:30 (306 000 ms) - Middle of jog
 : 306000000, qHeartbeat, 165
 : 306000000, qLongitude, 302
-: 306000000, qStepsSleep, 800
+: 306000000, qStepsSleep, 100
 
 # 09:00 (324 000 ms) - End of jog, work
 : 324000000, qActivityType, 0
@@ -46,15 +46,23 @@
 : 324000000, qHeartbeat, 80
 : 324000000, qLongitude, 305
 : 324000000, qLatitude, 205
+: 324000000, qStepsSleep, 0
+
+: 425000000, qStepsSleep, 15
 
 # 12:00 (432 000 ms) - Lunch
 : 432000000, qHeartbeat, 75
-: 432000000, qStepsSleep, 900
+: 432000000, qStepsSleep, 0
+
+: 450000000, qStepsSleep, 15
 
 # 17:00 (612 000 ms) - Tennis
 : 612000000, qActivityType, 300
 : 612000000, qHeartbeat, 130
 : 612000000, qCalories, 50
+: 324000000, qStepsSleep, 30
+
+: 600000000, qStepsSleep, 15
 
 # 18:30 (666 000 ms) - Video games
 : 666000000, qActivityType, 400
@@ -62,7 +70,7 @@
 : 666000000, qHeartbeat, 90
 : 666000000, qLongitude, 300
 : 666000000, qLatitude, 200
-: 666000000, qStepsSleep, 1000
+: 666000000, qStepsSleep, 0
 
 # 22:00 (792 000 ms) - Sleeping
 : 792000000, sSleepMode, 1

@@ -72,7 +72,10 @@ void ReadIdle() {
   // Values based on polish latitude and longitude values, where westmost point - y = 0 and southmost point - x = 0
   longitude = ZsutAnalog1Read() / 174.12;
   latitude = ZsutAnalog2Read() / 101.96;
-  stepsCount = ZsutAnalog5Read();
+  if (ZsutDigitalRead() & 1)
+    stepsCount = 0;
+  else
+    stepsCount = ZsutAnalog5Read();
 
   IdleMessage msg = {
     .messageType = IDLE,
