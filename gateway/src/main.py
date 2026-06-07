@@ -12,11 +12,11 @@ from src.generated import (
 )
 from src.logger import *
 
-import agregator
-
 # gateway settings
 HOST = "0.0.0.0"
 PORT = 5000
+
+BUFFER_SIZE = 1024
 
 
 # message types
@@ -109,7 +109,6 @@ def handle_data(data: bytes, addr) -> None:
 
 
 if __name__ == "__main__":
-    agregator.begin_receiving(sock)
     logi("Gateway started")
     while True:
         try:
