@@ -1,5 +1,6 @@
 import enum
 import json
+import random
 import socket
 import struct
 import time
@@ -168,23 +169,21 @@ def handle_data(data: bytes, addr) -> None:
                     f" cal={burnt_cal} type={activity_val}"
                 )
 
-            case MsgType.ALERT:
-                if len(data) < struct.calcsize(FMT_ALERT):
-                    loge(f"Short alert frame ({len(data)} B) from {addr}")
-                    return
-                _, alert_val = struct.unpack(FMT_ALERT, data)
-                message = alert_message_pb2.AlertMessage()
-                message.alert_type = alert_val
-                logd(
-                    f"Alert | sensor={sensor_id}"
-                    f" user={sensor_user_map.get(sensor_id, '?')}"
-                    f" type={alert_val}"
-                )
-
             case MsgType.HEARTRATE:
                 if len(data) < struct.calcsize(FMT_HEARTRATE):
                     loge(f"Short heartrate frame ({len(data)} B) from {addr}")
                     return
+                # before we do anything, let's see if we want to forward Heartrate or throw an alert
+                if random.randint(0, 100) < 10:
+                    # we're doing an alert
+                    message = alert_message_pb2.AlertMessage()
+                    message.alert_type = (
+                        alert_message_pb2.AlertMessage.AlertType.HEART_ATTACK
+                    )
+                    publish_proto(sensor_id, MsgType.ALERT, message.SerializeToString())
+                    logd(f"Alert | sensor={sensor_id} type={message.alert_type}")
+                    return
+
                 _, heartrate = struct.unpack(FMT_HEARTRATE, data)
                 message = heartrate_message_pb2.HeartrateMessage()
                 message.heartrate = heartrate
@@ -197,6 +196,15 @@ def handle_data(data: bytes, addr) -> None:
                 if len(data) < struct.calcsize(FMT_IDLE):
                     loge(f"Short idle frame ({len(data)} B) from {addr}")
                     return
+                # before we do anything, let's see if we want to forward Idle or throw an alert
+                if random.randint(0, 100) < 10:
+                    # we're doing an alert
+                    message = alert_message_pb2.AlertMessage()
+                    message.alert_type = alert_message_pb2.AlertMessage.AlertType.LOCALIZATION_OUT_OF_BOUNDS
+                    publish_proto(sensor_id, MsgType.ALERT, message.SerializeToString())
+                    logd(f"Alert | sensor={sensor_id} type={message.alert_type}")
+                    return
+
                 _, longitude, latitude, steps = struct.unpack(FMT_IDLE, data)
                 message = idle_message_pb2.IdleMessage()
                 message.longitude = longitude

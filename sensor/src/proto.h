@@ -17,13 +17,6 @@ enum ActivityType : uint8_t {
   GOTHIC
 };
 
-enum AlertType : uint8_t {
-  NO_HEARTRATE,
-  LOCALIZATION_OUT_OF_BOUNDS,
-  STROKE,
-  HEART_ATTACK
-};
-
 enum SleepType : uint8_t {
   AWAKE,
   LIGHT_SLEEP,
@@ -40,11 +33,6 @@ struct __attribute__((packed)) ActivityMessage {
   uint8_t messageType;
   uint8_t burntCalories;
   ActivityType activityType;
-};
-
-struct __attribute__((packed)) AlertMessage {
-  uint8_t messageType;
-  AlertType alertType;
 };
 
 struct __attribute__((packed)) HeartrateMessage {
