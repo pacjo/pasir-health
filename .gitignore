@@ -1,0 +1,8 @@
+# devenv
+.devenv
+
+# generated sources
+gateway/src/generated
+
+# python trash
+__pycache__
