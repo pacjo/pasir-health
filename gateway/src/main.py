@@ -2,7 +2,8 @@ import enum
 import socket
 import struct
 
-import paho
+import paho.mqtt.client as mqtt
+import paho.mqtt.publish as publish
 
 from src.generated import (
     activity_message_pb2,
@@ -103,9 +104,7 @@ def handle_data(data: bytes, addr) -> None:
         return
 
     else:
-        paho.mqtt.publish.single(
-            "test", message, hostname="mqtt.pasir.studia.pacjo.ovh"
-        )
+        publish.single("test", message, hostname="broker")
 
 
 if __name__ == "__main__":
