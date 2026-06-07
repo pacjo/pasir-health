@@ -9,14 +9,14 @@
 // will exist at compile-time
 #include "identity.h"
 
-#define HEARTBEAT_PERIOD  2000  // 30000   // 30s
+#define HEARTRATE_PERIOD  2000  // 30000   // 30s
 #define IDLE_PERIOD       4000  // 60000   // 60s
 #define SLEEP_PERIOD      6000  // 300000  // 5min
 #define PACKET_BUFFER_SIZE 256
 
 #define ZSUT_PIN_D0 0
 
-uint8_t heartbeat = 0;
+uint8_t heartrate = 0;
 uint16_t burntCalories = 0;
 uint16_t stepsCount = 0;
 float longitude = 0;
@@ -24,7 +24,7 @@ float latitude = 0;
 uint16_t activity = 0;
 ActivityType activityType = SWIMMING;
 
-unsigned long HeartbeatTime = 0;
+unsigned long HeartrateTime = 0;
 unsigned long IdleTime = 0;
 unsigned long SleepTime = 0;
 
@@ -54,17 +54,17 @@ void SendRegistration() {
   sendMessage(&msg, sizeof(msg));
 }
 
-void ReadHeartBeat() {
-  heartbeat = ZsutAnalog0Read();
+void ReadHeartrate() {
+  heartrate = ZsutAnalog0Read();
 
-  HeartbeatMessage msg = {
-    .messageType = HEARTBEAT,
-    .heartbeat = heartbeat
+  HeartrateMessage msg = {
+    .messageType = HEARTRATE,
+    .heartrate = hearrate
   };
 
-  Serial.print("Measured Heartbeat: ");
-  Serial.println(heartbeat);
-  Serial.print(F("Sending Heartbeat Message... "));
+  Serial.print("Measured Heartrate: ");
+  Serial.println(heartrate);
+  Serial.print(F("Sending Heartrate Message... "));
   sendMessage(&msg, sizeof(msg));
 }
 
@@ -186,12 +186,12 @@ void loop() {
     }
   }
 
-  if (currentTime - HeartbeatTime >= HEARTBEAT_PERIOD) {
-    ReadHeartBeat();
+  if (currentTime - HeartrateTime >= HEARTRATE_PERIOD) {
+    ReadHeartrate();
     activity = ZsutAnalog4Read();
     if (activity > 0)
       ReadActivity(activity);
-    HeartbeatTime = currentTime;
+    HeartrateTime = currentTime;
   }
 
   if (currentTime - IdleTime >= IDLE_PERIOD) {

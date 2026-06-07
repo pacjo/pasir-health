@@ -4,7 +4,7 @@
 
 #define ACTIVITY       0x0
 #define ALERT          0x1
-#define HEARTBEAT      0x2
+#define HEARTRATE      0x2
 #define IDLE           0x3
 #define SLEEP          0x4
 #define REGISTRATION   0x5
@@ -18,7 +18,7 @@ enum ActivityType : uint8_t {
 };
 
 enum AlertType : uint8_t {
-  NO_HEARTBEAT,
+  NO_HEARTRATE,
   LOCALIZATION_OUT_OF_BOUNDS,
   STROKE,
   HEART_ATTACK
@@ -47,9 +47,9 @@ struct __attribute__((packed)) AlertMessage {
   AlertType alertType;
 };
 
-struct __attribute__((packed)) HeartbeatMessage {
+struct __attribute__((packed)) HeartrateMessage {
   uint8_t messageType;
-  uint8_t heartbeat;
+  uint8_t heartrate;
 };
 
 struct __attribute__((packed)) IdleMessage {

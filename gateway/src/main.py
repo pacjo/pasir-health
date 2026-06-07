@@ -7,7 +7,7 @@ import time
 from src.generated import (
     activity_message_pb2,
     alert_message_pb2,
-    heartbeat_message_pb2,
+    heartrate_message_pb2,
     idle_message_pb2,
     sleep_message_pb2,
 )
@@ -28,7 +28,7 @@ STALE_TIMEOUT_SECONDS = 60
 class MsgType(enum.IntEnum):
     ACTIVITY = 0x0, "act"
     ALERT = 0x1, "alt"
-    HEARTBEAT = 0x2, "hrt"
+    HEARTRATE = 0x2, "hrt"
     IDLE = 0x3, "idl"
     SLEEP = 0x4, "slp"
 
@@ -49,7 +49,7 @@ class MsgType(enum.IntEnum):
 # magic, see: https://docs.python.org/3.13/library/struct.html
 FMT_ACTIVITY = "<BBB"
 FMT_ALERT = "<BB"
-FMT_HEARTBEAT = "<BB"
+FMT_HEARTRATE = "<BB"
 FMT_IDLE = "<BffH"
 FMT_SLEEP = "<BB"
 FMT_REGISTRATION = "<BI"
@@ -181,16 +181,16 @@ def handle_data(data: bytes, addr) -> None:
                     f" type={alert_val}"
                 )
 
-            case MsgType.HEARTBEAT:
-                if len(data) < struct.calcsize(FMT_HEARTBEAT):
-                    loge(f"Short heartbeat frame ({len(data)} B) from {addr}")
+            case MsgType.HEARTRATE:
+                if len(data) < struct.calcsize(FMT_HEARTRATE):
+                    loge(f"Short heartrate frame ({len(data)} B) from {addr}")
                     return
-                _, heartbeat = struct.unpack(FMT_HEARTBEAT, data)
-                message = heartbeat_message_pb2.HeartbeatMessage()
-                message.heartbeat = heartbeat
+                _, heartrate = struct.unpack(FMT_HEARTRATE, data)
+                message = heartrate_message_pb2.HeartrateMessage()
+                message.heartrate = heartrate
                 logd(
-                    f"Heartbeat | sensor={sensor_id}"
-                    f" user={sensor_user_map.get(sensor_id, '?')} bpm={heartbeat}"
+                    f"Heartrate | sensor={sensor_id}"
+                    f" user={sensor_user_map.get(sensor_id, '?')} bpm={heartrate}"
                 )
 
             case MsgType.IDLE:

@@ -2,7 +2,7 @@ syntax = "proto2";
 
 message AlertMessage {
   enum AlertType {
-    NO_HEARTBEAT = 0;
+    NO_HEARTRATE = 0;
     LOCALIZATION_OUT_OF_BOUNDS = 1;
     STROKE = 2;
     HEART_ATTACK = 3;
