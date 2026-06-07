@@ -12,10 +12,11 @@ from src.generated import (
 )
 from src.logger import *
 
+import agregator
+
 # gateway settings
 HOST = "0.0.0.0"
 PORT = 5000
-BUFFER_SIZE = 1024
 
 
 # message types
@@ -33,7 +34,7 @@ FMT_ACTIVITY = "<BHBB"
 FMT_SLEEP = "<BHB"
 
 # create UDP socket
-sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+sock: socket.socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 sock.bind((HOST, PORT))
 
 # TODO: use network byte-order
@@ -108,6 +109,7 @@ def handle_data(data: bytes, addr) -> None:
 
 
 if __name__ == "__main__":
+    agregator.begin_receiving(sock)
     logi("Gateway started")
     while True:
         try:
