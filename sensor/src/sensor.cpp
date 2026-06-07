@@ -4,64 +4,17 @@
 #include <ZsutFeatures.h>
 #include <ZsutIPAddress.h>
 
+#include "proto.h"
+
 // will exist at compile-time
 #include "identity.h"
 
 #define HEARTBEAT_PERIOD  2000  // 30000   // 30s
 #define IDLE_PERIOD       4000  // 60000   // 60s
-#define SLEEP_PERIOD      6000  // 300000  // 5 min
+#define SLEEP_PERIOD      6000  // 300000  // 5min
 #define PACKET_BUFFER_SIZE 256
 
-#define HEARTBEAT      0
-#define IDLE           1
-#define ACTIVITY       2
-#define SLEEP          3
-#define REGISTRATION   4
-#define NOT_REGISTERED 5
-
 #define ZSUT_PIN_D0 0
-
-enum activity_type : uint8_t {
-  SWIMMING,
-  RUNNING,
-  TENNIS,
-  GOTHIC
-};
-
-enum sleep_type : uint8_t {
-  AWAKE,
-  LIGHT_SLEEP,
-  DEEP_SLEEP,
-  REM
-};
-
-struct __attribute__((packed)) RegistrationMessage {
-  uint8_t messageType;
-  uint32_t sensorId;
-};
-
-struct __attribute__((packed)) HeartbeatMessage {
-  uint8_t messageType;
-  uint8_t heartbeat;
-};
-
-struct __attribute__((packed)) IdleMessage {
-  uint8_t messageType;
-  float longitude;
-  float latitude;
-  uint16_t stepsCount;
-};
-
-struct __attribute__((packed)) ActivityMessage {
-  uint8_t messageType;
-  uint8_t burntCalories;
-  activity_type activityType;
-};
-
-struct __attribute__((packed)) SleepMessage {
-  uint8_t messageType;
-  sleep_type sleepType;
-};
 
 uint8_t heartbeat = 0;
 uint16_t burntCalories = 0;
@@ -83,34 +36,37 @@ unsigned int localPort = 22222;
 byte mac[] = {0x00, 0xAA, 0xBB, 0xCC, 0xDE, 0xE7};
 ZsutEthernetUDP Udp;
 
+void sendMessage(void* msg, size_t size) {
+  Udp.beginPacket(brokeraddres, brokerport);
+  Udp.write((uint8_t*)msg, size);
+  Udp.endPacket();
+  Serial.println(F("Sent."));
+}
+
 void SendRegistration() {
-  RegistrationMessage msg;
-  msg.messageType = REGISTRATION;
-  msg.sensorId = SENSOR_ID;
+  RegistrationMessage msg = {
+    .messageType = REGISTRATION,
+    .sensorId = SENSOR_ID
+  };
 
   Serial.print(F("Sending Registration (sensor="));
   Serial.print(SENSOR_ID);
   Serial.print(F(")... "));
-  Udp.beginPacket(brokeraddres, brokerport);
-  Udp.write((uint8_t*)&msg, sizeof(msg));
-  Udp.endPacket();
-  Serial.println(F("Send."));
+  sendMessage(&msg, sizeof(msg));
 }
 
 void ReadHeartBeat() {
   heartbeat = ZsutAnalog0Read();
 
-  HeartbeatMessage msg;
-  msg.messageType = HEARTBEAT;
-  msg.heartbeat = heartbeat;
+  HeartbeatMessage msg = {
+    .messageType = HEARTBEAT,
+    .heartbeat = heartbeat
+  };
 
   Serial.print("Measured Heartbeat: ");
   Serial.println(heartbeat);
   Serial.print(F("Sending Heartbeat Message... "));
-  Udp.beginPacket(brokeraddres, brokerport);
-  Udp.write((uint8_t*)&msg, sizeof(msg));
-  Udp.endPacket();
-  Serial.println(F("Send."));
+  sendMessage(&msg, sizeof(msg));
 }
 
 void ReadIdle() {
@@ -119,21 +75,19 @@ void ReadIdle() {
   latitude = ZsutAnalog2Read() / 101.96;
   stepsCount = ZsutAnalog5Read();
 
-  IdleMessage msg;
-  msg.messageType = IDLE;
-  msg.longitude = longitude;
-  msg.latitude = latitude;
-  msg.stepsCount = stepsCount;
+  IdleMessage msg = {
+    .messageType = IDLE,
+    .longitude = longitude,
+    .latitude = latitude,
+    .stepsCount = stepsCount
+  };
   Serial.print(F("Longitude: "));
   Serial.print(longitude);
   Serial.print(F(" Latitude: "));
   Serial.println(latitude);
 
   Serial.print(F("Sending Idle Message... "));
-  Udp.beginPacket(brokeraddres, brokerport);
-  Udp.write((uint8_t*)&msg, sizeof(msg));
-  Udp.endPacket();
-  Serial.println(F("Send."));
+  sendMessage(&msg, sizeof(msg));
 }
 
 void ReadActivity(uint16_t activity) {
@@ -158,16 +112,14 @@ void ReadActivity(uint16_t activity) {
       break;
   }
 
-  ActivityMessage msg;
-  msg.messageType = ACTIVITY;
-  msg.burntCalories = burntCalories;
-  msg.activityType = activityType;
+  ActivityMessage msg = {
+    .messageType = ACTIVITY,
+    .burntCalories = static_cast<uint8_t>(burntCalories), // TODO: verify
+    .activityType = activityType
+  };
 
   Serial.print(F("Sending Activity Message... "));
-  Udp.beginPacket(brokeraddres, brokerport);
-  Udp.write((uint8_t*)&msg, sizeof(msg));
-  Udp.endPacket();
-  Serial.println(F("Send."));
+  sendMessage(&msg, sizeof(msg));
 }
 
 void ReadSleep() {
@@ -194,15 +146,13 @@ void ReadSleep() {
       break;
   }
 
-  SleepMessage msg;
-  msg.messageType = SLEEP;
-  msg.sleepType = sleepType;
+  SleepMessage msg = {
+    .messageType = SLEEP,
+    .sleepType = sleepType
+  };
 
   Serial.print(F("Sending Sleep Message... "));
-  Udp.beginPacket(brokeraddres, brokerport);
-  Udp.write((uint8_t*)&msg, sizeof(msg));
-  Udp.endPacket();
-  Serial.println(F("Send."));
+  sendMessage(&msg, sizeof(msg));
 }
 
 void setup() {
