@@ -2,6 +2,8 @@ default:
     just --list
 
 clean:
+    #!/usr/bin/env bash
+    # TODO: make clean_gateway/cloud/... and then clean_all
     rm -rf gateway/src/generated
 
 generate_protobuf:
@@ -19,7 +21,7 @@ generate_protobuf:
     touch gateway/src/generated/__init__.py
 
 [working-directory('./sensor')]
-compile_sensor sensor_id:
+sensor_compile sensor_id:
     #!/usr/bin/env bash
     IDENTITY_FILE=src/identity.h
     cat << EOF > $IDENTITY_FILE
@@ -47,3 +49,15 @@ run_sensor sensor_id:
     # destroy env
     cd ..
     rm -r {{ sensor_id }}
+
+run_docker:
+    docker compose up -d
+
+run num_sensors: run_docker
+    #!/usr/bin/env bash
+    # everything else was started by just
+    # finally we can run sensors
+    for i in $(seq 1 {{ num_sensors }}); do
+        just compile_sensor $i
+        just run_sensor $i
+    done
