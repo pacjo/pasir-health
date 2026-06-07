@@ -122,6 +122,11 @@ def handle_data(data: bytes, addr) -> None:
             loge(f"Short registration frame ({len(data)} B) from {addr}")
             return
         _, sensor_id = struct.unpack(FMT_REGISTRATION, data)
+        if sensor_id not in sensor_user_map:
+            logw(
+                f"Rejected registration from unknown sensor {sensor_id} ({addr[0]}:{addr[1]})"
+            )
+            return
         key = (addr[0], addr[1])
         old = addr_sensor_map.get(key)
         addr_sensor_map[key] = sensor_id
