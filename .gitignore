@@ -6,3 +6,12 @@ gateway/src/generated
 
 # python trash
 __pycache__
+
+# sensor - pio/clang(d)
+# tools
+sensor/.pio
+sensor/.cache
+sensor/compile_commands.json
+
+# identity
+sensor/src/identity.h
