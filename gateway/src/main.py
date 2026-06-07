@@ -12,6 +12,7 @@ from src.generated import (
     sleep_message_pb2,
 )
 from src.logger import *
+from src.mqtt_client import MQTTclient
 
 # gateway settings
 HOST = "0.0.0.0"
@@ -37,6 +38,9 @@ FMT_SLEEP = "<BIB"
 # create UDP socket
 sock: socket.socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 sock.bind((HOST, PORT))
+
+# create MQTT Client
+client = MQTTclient(HOST, PORT)
 
 # TODO: use network byte-order
 
@@ -104,7 +108,7 @@ def handle_data(data: bytes, addr) -> None:
         return
 
     else:
-        publish.single("test", message.SerializeToString(), hostname="broker")
+        client.publish("test", message.SerializeToString())
 
 
 if __name__ == "__main__":
