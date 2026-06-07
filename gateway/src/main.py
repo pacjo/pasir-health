@@ -67,6 +67,9 @@ addr_sensor_map: dict[tuple[str, int], int] = {}
 ## sensor_id <-> last-activity timestamp
 sensor_last_seen_map: dict[int, float] = {}
 
+# per-user accumulated state (sensor sends deltas, we track totals)
+user_state: dict[int, dict] = {}
+
 
 def on_mapping_message(client, userdata, msg):
     global sensor_user_map
@@ -115,6 +118,12 @@ def publish_proto(sensor_id: int, msg_type: int, payload: bytes) -> None:
     client.publish(topic, payload)
 
 
+def get_user_state(user_id: int) -> dict:
+    if user_id not in user_state:
+        user_state[user_id] = {"steps": 0}
+    return user_state[user_id]
+
+
 def handle_data(data: bytes, addr) -> None:
     if len(data) < 1:
         loge(f"Dropped empty datagram from {addr}")
@@ -150,6 +159,7 @@ def handle_data(data: bytes, addr) -> None:
         return
 
     mark_sensor_as_seen(sensor_id)
+    user_id = sensor_user_map.get(sensor_id)
 
     # actual data
     message = None
@@ -165,8 +175,7 @@ def handle_data(data: bytes, addr) -> None:
                 message.activity_type = activity_val
                 logd(
                     f"Activity | sensor={sensor_id}"
-                    f" user={sensor_user_map.get(sensor_id, '?')}"
-                    f" cal={burnt_cal} type={activity_val}"
+                    f" user={user_id} cal={burnt_cal} type={activity_val}"
                 )
 
             case MsgType.HEARTRATE:
@@ -187,10 +196,7 @@ def handle_data(data: bytes, addr) -> None:
                 _, heartrate = struct.unpack(FMT_HEARTRATE, data)
                 message = heartrate_message_pb2.HeartrateMessage()
                 message.heartrate = heartrate
-                logd(
-                    f"Heartrate | sensor={sensor_id}"
-                    f" user={sensor_user_map.get(sensor_id, '?')} bpm={heartrate}"
-                )
+                logd(f"Heartrate | sensor={sensor_id} user={user_id} bpm={heartrate}")
 
             case MsgType.IDLE:
                 if len(data) < struct.calcsize(FMT_IDLE):
@@ -205,15 +211,18 @@ def handle_data(data: bytes, addr) -> None:
                     logd(f"Alert | sensor={sensor_id} type={message.alert_type}")
                     return
 
-                _, longitude, latitude, steps = struct.unpack(FMT_IDLE, data)
+                _, longitude, latitude, delta_steps = struct.unpack(FMT_IDLE, data)
+                state = get_user_state(user_id)
+                state["steps"] += delta_steps
                 message = idle_message_pb2.IdleMessage()
                 message.longitude = longitude
                 message.latitude = latitude
-                message.steps_count = steps
+                message.steps_count = state["steps"]
                 logd(
                     f"Idle | sensor={sensor_id}"
-                    f" user={sensor_user_map.get(sensor_id, '?')}"
-                    f" lon={longitude:.4f} lat={latitude:.4f} steps={steps}"
+                    f" user={user_id}"
+                    f" lon={longitude:.4f} lat={latitude:.4f}"
+                    f" +{delta_steps} steps (total={state['steps']})"
                 )
 
             case MsgType.SLEEP:
@@ -223,11 +232,7 @@ def handle_data(data: bytes, addr) -> None:
                 _, sleep_val = struct.unpack(FMT_SLEEP, data)
                 message = sleep_message_pb2.SleepMessage()
                 message.sleep_type = sleep_val
-                logd(
-                    f"Sleep | sensor={sensor_id}"
-                    f" user={sensor_user_map.get(sensor_id, '?')}"
-                    f" type={sleep_val}"
-                )
+                logd(f"Sleep | sensor={sensor_id} user={user_id} type={sleep_val}")
 
             case _:
                 logw(f"Unknown message type {msg_type:#04x} from {addr}")
