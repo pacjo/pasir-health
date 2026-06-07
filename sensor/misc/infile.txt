@@ -31,21 +31,21 @@
 # 08:00 (288 000 ms) - Jog
 : 288000000, qActivityType, 200
 : 288000000, qHeartbeat, 150
-: 288000000, qCalories, 150
-: 288000000, qLongitude, 350
-: 288000000, qLatitude, 250
+: 288000000, qCalories, 75
+: 288000000, qLongitude, 301
+: 288000000, qLatitude, 201
 
 # 08:30 (306 000 ms) - Middle of jog
-: 306000000, qCalories, 350
 : 306000000, qHeartbeat, 165
-: 306000000, qLongitude, 400
+: 306000000, qLongitude, 302
 : 306000000, qStepsSleep, 800
 
 # 09:00 (324 000 ms) - End of jog, work
 : 324000000, qActivityType, 0
+: 324000000, qCalories, 0
 : 324000000, qHeartbeat, 80
-: 324000000, qLongitude, 700
-: 324000000, qLatitude, 600
+: 324000000, qLongitude, 305
+: 324000000, qLatitude, 205
 
 # 12:00 (432 000 ms) - Lunch
 : 432000000, qHeartbeat, 75
@@ -54,10 +54,11 @@
 # 17:00 (612 000 ms) - Tennis
 : 612000000, qActivityType, 300
 : 612000000, qHeartbeat, 130
-: 612000000, qCalories, 200
+: 612000000, qCalories, 50
 
 # 18:30 (666 000 ms) - Video games
 : 666000000, qActivityType, 400
+: 666000000, qCalories, 0
 : 666000000, qHeartbeat, 90
 : 666000000, qLongitude, 300
 : 666000000, qLatitude, 200
