@@ -67,7 +67,7 @@ def handle_data(data: bytes, addr) -> None:
                 message = idle_message_pb2.IdleMessage()
                 message.longitude = longitude
                 message.latitude = latitude
-                message.stepsCount = steps
+                message.steps_count = steps
                 logd(
                     f"Idle | user={user_id} lon={longitude:.4f} lat={latitude:.4f} steps={steps}"
                 )
@@ -78,10 +78,10 @@ def handle_data(data: bytes, addr) -> None:
                     return
                 _, user_id, burnt_cal, activity_val = struct.unpack(FMT_ACTIVITY, data)
                 message = activity_message_pb2.ActivityMessage()
-                message.burntCalories = burnt_cal
+                message.burnt_calories = burnt_cal
                 # Arduino activity_type enum values match ActivityType proto enum:
                 #   SWIMMING=0, RUNNING=1, TENNIS=2, GOTHIC=3
-                message.activityType = activity_val
+                message.activity_type = activity_val
                 logd(f"Activity | user={user_id} cal={burnt_cal} type={activity_val}")
 
             case MsgType.SLEEP:
@@ -92,7 +92,7 @@ def handle_data(data: bytes, addr) -> None:
                 message = sleep_message_pb2.SleepMessage()
                 # Arduino sleep_type enum values match SleepMessage.sleep_type proto enum:
                 #   AWAKE=0, LIGHT_SLEEP=1, DEEP_SLEEP=2, REM=3
-                message.sleepType = sleep_val
+                message.sleep_type = sleep_val
                 logd(f"Sleep | user={user_id} type={sleep_val}")
 
             case _:
@@ -104,7 +104,7 @@ def handle_data(data: bytes, addr) -> None:
         return
 
     else:
-        publish.single("test", message, hostname="broker")
+        publish.single("test", message.SerializeToString(), hostname="broker")
 
 
 if __name__ == "__main__":
