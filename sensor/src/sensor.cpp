@@ -31,7 +31,6 @@ unsigned long SleepTime = 0;
 ZsutIPAddress brokeraddres = ZsutIPAddress(192, 168, 122, 97);
 unsigned int brokerport = 5000;
 unsigned char packetBuffer[PACKET_BUFFER_SIZE];
-unsigned int localPort = 22222;
 
 byte mac[] = {0x00, 0xAA, 0xBB, 0xCC, 0xDE, 0xE7};
 ZsutEthernetUDP Udp;
@@ -157,6 +156,9 @@ void ReadSleep() {
 
 void setup() {
   Serial.begin(115200);
+
+  randomSeed(RANDOM_SEED); // will exist at compile-time
+  uint16_t localPort = random(1024, 65535);
 
   ZsutEthernet.begin(mac);
   Udp.begin(localPort);

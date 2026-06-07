@@ -21,12 +21,15 @@ generate_protobuf:
     touch gateway/src/generated/__init__.py
 
 [working-directory('./sensor')]
-sensor_compile sensor_id:
+compile_sensor sensor_id:
     #!/usr/bin/env bash
     IDENTITY_FILE=src/identity.h
+    # generate random that will fit in randomSeed(unsigned long)
+    RANDOM=$(shuf -i 0-4294967295 -n 1)
     cat << EOF > $IDENTITY_FILE
     #ifndef SENSOR_ID
     #define SENSOR_ID {{ sensor_id }}
+    #define RANDOM_SEED $RANDOM
     #endif
     EOF
     pio run

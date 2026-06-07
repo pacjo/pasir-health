@@ -50,7 +50,7 @@ class MsgType(enum.IntEnum):
 FMT_ACTIVITY = "<BBB"
 FMT_ALERT = "<BB"
 FMT_HEARTBEAT = "<BB"
-FMT_IDLE = "<BddH"
+FMT_IDLE = "<BffH"
 FMT_SLEEP = "<BB"
 FMT_REGISTRATION = "<BI"
 
