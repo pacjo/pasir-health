@@ -72,7 +72,7 @@ def on_mapping_message(client, userdata, msg):
     logi(f"Mapping updated: {len(sensor_user_map)} sensor(s)")
 
 
-client = MQTTclient("broker", 1883, subscriptions=[("mappings/config", 0)])
+client = MQTTclient("broker", 1883, subscriptions=[("management/mappings", 0)])
 # we only ever expect to receive mapping updates
 client.set_on_message(on_mapping_message)
 
