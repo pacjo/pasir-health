@@ -6,6 +6,7 @@ import time
 
 from src.generated import (
     activity_message_pb2,
+    alert_message_pb2,
     heartbeat_message_pb2,
     idle_message_pb2,
     sleep_message_pb2,
@@ -25,29 +26,33 @@ STALE_TIMEOUT_SECONDS = 60
 
 # message types
 class MsgType(enum.IntEnum):
-    HEARTBEAT = 0x0
-    IDLE = 0x1
-    ACTIVITY = 0x2
-    SLEEP = 0x3
-    REGISTRATION = 0x4
-    NOT_REGISTERED = 0x5
+    ACTIVITY = 0x0, "act"
+    ALERT = 0x1, "alt"
+    HEARTBEAT = 0x2, "hrt"
+    IDLE = 0x3, "idl"
+    SLEEP = 0x4, "slp"
+
+    # don't have a proto counterpart
+    REGISTRATION = 0x5, None
+    NOT_REGISTERED = 0x6, None
+
+    # python magic to make topic_name available as attribute
+    topic_name: str | None
+
+    def __new__(cls, value, topic_name=None):
+        obj = int.__new__(cls, value)
+        obj._value_ = value
+        obj.topic_name = topic_name
+        return obj
 
 
 # magic, see: https://docs.python.org/3.13/library/struct.html
-FMT_REGISTRATION = "<BI"
-
+FMT_ACTIVITY = "<BBB"
+FMT_ALERT = "<BB"
 FMT_HEARTBEAT = "<BB"
 FMT_IDLE = "<BddH"
-FMT_ACTIVITY = "<BBB"
 FMT_SLEEP = "<BB"
-
-# short topic segment per message type (int keys match the wire byte) - TODO: merge with MsgType
-TYPE_NAMES: dict[int, str] = {
-    MsgType.HEARTBEAT: "hr",
-    MsgType.IDLE: "idle",
-    MsgType.ACTIVITY: "act",
-    MsgType.SLEEP: "slp",
-}
+FMT_REGISTRATION = "<BI"
 
 # create UDP socket
 sock: socket.socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -102,7 +107,7 @@ def cleanup_stale_sensors() -> None:
 
 
 def publish_proto(sensor_id: int, msg_type: int, payload: bytes) -> None:
-    type_name = TYPE_NAMES.get(msg_type)
+    type_name = MsgType(msg_type).topic_name
     user_id = sensor_user_map.get(sensor_id)
     topic = f"{type_name}/{user_id}/{sensor_id}"
 
@@ -149,6 +154,33 @@ def handle_data(data: bytes, addr) -> None:
     message = None
     try:
         match msg_type:
+            case MsgType.ACTIVITY:
+                if len(data) < struct.calcsize(FMT_ACTIVITY):
+                    loge(f"Short activity frame ({len(data)} B) from {addr}")
+                    return
+                _, burnt_cal, activity_val = struct.unpack(FMT_ACTIVITY, data)
+                message = activity_message_pb2.ActivityMessage()
+                message.burnt_calories = burnt_cal
+                message.activity_type = activity_val
+                logd(
+                    f"Activity | sensor={sensor_id}"
+                    f" user={sensor_user_map.get(sensor_id, '?')}"
+                    f" cal={burnt_cal} type={activity_val}"
+                )
+
+            case MsgType.ALERT:
+                if len(data) < struct.calcsize(FMT_ALERT):
+                    loge(f"Short alert frame ({len(data)} B) from {addr}")
+                    return
+                _, alert_val = struct.unpack(FMT_ALERT, data)
+                message = alert_message_pb2.AlertMessage()
+                message.alert_type = alert_val
+                logd(
+                    f"Alert | sensor={sensor_id}"
+                    f" user={sensor_user_map.get(sensor_id, '?')}"
+                    f" type={alert_val}"
+                )
+
             case MsgType.HEARTBEAT:
                 if len(data) < struct.calcsize(FMT_HEARTBEAT):
                     loge(f"Short heartbeat frame ({len(data)} B) from {addr}")
@@ -176,30 +208,12 @@ def handle_data(data: bytes, addr) -> None:
                     f" lon={longitude:.4f} lat={latitude:.4f} steps={steps}"
                 )
 
-            case MsgType.ACTIVITY:
-                if len(data) < struct.calcsize(FMT_ACTIVITY):
-                    loge(f"Short activity frame ({len(data)} B) from {addr}")
-                    return
-                _, burnt_cal, activity_val = struct.unpack(FMT_ACTIVITY, data)
-                message = activity_message_pb2.ActivityMessage()
-                message.burnt_calories = burnt_cal
-                # Arduino activity_type enum values match ActivityType proto enum:
-                #   SWIMMING=0, RUNNING=1, TENNIS=2, GOTHIC=3
-                message.activity_type = activity_val
-                logd(
-                    f"Activity | sensor={sensor_id}"
-                    f" user={sensor_user_map.get(sensor_id, '?')}"
-                    f" cal={burnt_cal} type={activity_val}"
-                )
-
             case MsgType.SLEEP:
                 if len(data) < struct.calcsize(FMT_SLEEP):
                     loge(f"Short sleep frame ({len(data)} B) from {addr}")
                     return
                 _, sleep_val = struct.unpack(FMT_SLEEP, data)
                 message = sleep_message_pb2.SleepMessage()
-                # Arduino sleep_type enum values match SleepMessage.sleep_type proto enum:
-                #   AWAKE=0, LIGHT_SLEEP=1, DEEP_SLEEP=2, REM=3
                 message.sleep_type = sleep_val
                 logd(
                     f"Sleep | sensor={sensor_id}"
