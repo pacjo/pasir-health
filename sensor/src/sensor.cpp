@@ -177,9 +177,29 @@ void setup() {
   SendRegistration();
 }
 
-void loop() {
-  unsigned long currentTime = ZsutMillis();
+// make-believe sensor collector
+void Collector() {
+    uint32_t currentTime = ZsutMillis();
+    if (currentTime - HeartrateTime >= HEARTRATE_PERIOD) {
+      ReadHeartrate();
+      activity = ZsutAnalog4Read();
+      if (activity > 0)
+        ReadActivity(activity);
+      HeartrateTime = currentTime;
+    }
 
+    if (currentTime - IdleTime >= IDLE_PERIOD) {
+      ReadIdle();
+      IdleTime = currentTime;
+    }
+
+    if ((currentTime - SleepTime >= SLEEP_PERIOD) && (ZsutDigitalRead() & 1)) {
+      ReadSleep();
+      SleepTime = currentTime;
+    }
+}
+
+void loop() {
   // check if gateway hasn't lost our registration
   if (Udp.parsePacket() >= 1) {
     Udp.read(packetBuffer, 1);
@@ -189,21 +209,5 @@ void loop() {
     }
   }
 
-  if (currentTime - HeartrateTime >= HEARTRATE_PERIOD) {
-    ReadHeartrate();
-    activity = ZsutAnalog4Read();
-    if (activity > 0)
-      ReadActivity(activity);
-    HeartrateTime = currentTime;
-  }
-
-  if (currentTime - IdleTime >= IDLE_PERIOD) {
-    ReadIdle();
-    IdleTime = currentTime;
-  }
-
-  if ((currentTime - SleepTime >= SLEEP_PERIOD) && (ZsutDigitalRead() & 1)) {
-    ReadSleep();
-    SleepTime = currentTime;
-  }
+  Collector();
 }
