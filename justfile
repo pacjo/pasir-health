@@ -19,24 +19,24 @@ generate_protobuf:
     touch gateway/src/generated/__init__.py
 
 [working-directory('./sensor')]
-compile_sensor user_id:
+compile_sensor sensor_id:
     #!/usr/bin/env bash
     IDENTITY_FILE=src/identity.h
     cat << EOF > $IDENTITY_FILE
-    #ifndef USER_ID
-    #define USER_ID {{ user_id }}
+    #ifndef SENSOR_ID
+    #define SENSOR_ID {{ sensor_id }}
     #endif
     EOF
     pio run
     rm $IDENTITY_FILE
 
 [working-directory('./sensor')]
-run_sensor user_id:
+run_sensor sensor_id:
     #!/usr/bin/env bash
     # create execution env
     cd ./misc
-    mkdir {{ user_id }}
-    cd {{ user_id }}
+    mkdir {{ sensor_id }}
+    cd {{ sensor_id }}
     for file in ../*; do
         [ -f "$file" ] && ln -s "$file" .
     done
@@ -46,4 +46,4 @@ run_sensor user_id:
 
     # destroy env
     cd ..
-    rm -r {{ user_id }}
+    rm -r {{ sensor_id }}

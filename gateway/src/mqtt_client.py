@@ -1,16 +1,21 @@
 import random
-import time
 
 from paho.mqtt import client as mqtt_client
 
 
 class MQTTclient:
-    def __init__(self, ip: str, port: int):
-        client_id = f'publish-{random.randint(0, 1000)}'
+    def __init__(
+        self, ip: str, port: int, subscriptions: list[tuple[str, int]] | None = None
+    ):
+        client_id = f"publish-{random.randint(0, 1000)}"
 
         def on_connect(client, userdata, flags, reason_code, properties):
             if reason_code == 0:
                 print("Connected to MQTT Broker!")
+                if subscriptions:
+                    for topic, qos in subscriptions:
+                        client.subscribe(topic, qos)
+                        print(f"Subscribed to `{topic}`")
             else:
                 print(f"Failed to connect, return code {reason_code}")
 
@@ -21,13 +26,15 @@ class MQTTclient:
         # client.username_pw_set(username, password)
         self.client.on_connect = on_connect
         self.client.connect(ip, port)
+        self.client.loop_start()
 
+    def set_on_message(self, callback):
+        self.client.on_message = callback
 
-    def publish(self, topic: str, msg: str):
+    def publish(self, topic: str, msg: str | bytes):
         result = self.client.publish(topic, msg)
-        # result: [0, 1]
         status = result[0]
         if status == 0:
-            print(f"Sent `{msg}` to topic `{topic}`")
+            print(f"Sent to topic `{topic}`")
         else:
             print(f"Failed to send message to topic {topic}")
