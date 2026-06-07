@@ -36,36 +36,36 @@ enum sleep_type : uint8_t {
 
 struct __attribute__((packed)) HeartbeatMessage{
   uint8_t messageType;
-  uint16_t userId;
+  uint32_t userId;
   uint8_t heartbeat;
 };
 
 struct __attribute__((packed)) IdleMessage{
   uint8_t messageType;
-  uint16_t userId;
-  double longitude;
-  double latitude;
+  uint32_t userId;
+  float longitude;
+  float latitude;
   uint16_t stepsCount;
 };
 
 struct __attribute__((packed)) ActivityMessage{
   uint8_t messageType;
-  uint16_t userId;
+  uint32_t userId;
   uint8_t burntCalories;
   activity_type activityType;
 };
 
 struct __attribute__((packed)) SleepMessage{
   uint8_t messageType;
-  uint16_t userId;
+  uint32_t userId;
   sleep_type sleepType;
 };
 
 uint8_t heartbeat = 0;
 uint16_t burntCalories = 0;
 uint16_t stepsCount = 0;
-double longitude = 0;
-double latitude = 0;
+float longitude = 0;
+float latitude = 0;
 uint16_t activity = 0;
 activity_type activityType = SWIMMING;
 

@@ -29,10 +29,10 @@ class MsgType(enum.IntEnum):
 
 
 # magic, see: https://docs.python.org/3.13/library/struct.html
-FMT_HEARTBEAT = "<BHB"
-FMT_IDLE = "<BHddH"
-FMT_ACTIVITY = "<BHBB"
-FMT_SLEEP = "<BHB"
+FMT_HEARTBEAT = "<BIB"
+FMT_IDLE = "<BIddH"
+FMT_ACTIVITY = "<BIBB"
+FMT_SLEEP = "<BIB"
 
 # create UDP socket
 sock: socket.socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
