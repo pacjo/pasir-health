@@ -15,3 +15,9 @@ sensor/compile_commands.json
 
 # identity
 sensor/src/identity.h
+
+# emulator
+sensor/misc/*
+!sensor/misc/EBSimUnoEthCurses
+!sensor/misc/emulino.eeprom
+!sensor/misc/infile.txt
