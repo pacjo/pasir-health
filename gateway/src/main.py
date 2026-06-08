@@ -57,6 +57,7 @@ FMT_REGISTRATION = "<BI"
 
 # create UDP socket
 sock: socket.socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+sock.settimeout(1.0)
 sock.bind((HOST, PORT))
 
 # mappings
@@ -261,11 +262,14 @@ if __name__ == "__main__":
         try:
             data, addr = sock.recvfrom(BUFFER_SIZE)
             logd(f"Received {len(data)} bytes from {addr}")
+        except socket.timeout:
+            # no data arrived, move to cleanup
+            pass
         except Exception as e:
             loge(f"Socket error: {e}")
             continue
-
-        handle_data(data, addr)
+        else:
+            handle_data(data, addr)
 
         # run cleanup every ~10 seconds
         now = time.monotonic()
