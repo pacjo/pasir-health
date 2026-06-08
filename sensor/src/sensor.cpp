@@ -59,7 +59,7 @@ void ReadHeartrate() {
 
   HeartrateMessage msg = {
     .messageType = HEARTRATE,
-    .heartrate = hearrate
+    .heartrate = heartrate
   };
 
   Serial.print("Measured Heartrate: ");
