@@ -1,0 +1,67 @@
++ qHeartbeat,quantity,Z0
++ qLongitude,quantity,Z1
++ qLatitude,quantity,Z2
++ qCalories,quantity,Z3
++ qActivityType,quantity,Z4
++ qStepsSleep,quantity,Z5
++ sSleepMode,status,D0
+
+# 00:00 (0 ms) - Deep sleep
+: 0, sSleepMode, 1
+: 0, qHeartbeat, 52
+: 0, qActivityType, 0
+: 0, qCalories, 0
+: 0, qStepsSleep, 750
+: 0, qLongitude, 290
+: 0, qLatitude, 190
+
+# 06:30 (234 000 ms) - Waking up
+: 2340000000, sSleepMode, 0
+: 2340000000, qHeartbeat, 75
+: 2340000000, qStepsSleep, 30
+
+# 07:30 (270 000 ms) - Work
+: 2700000000, qLongitude, 300
+: 2700000000, qLatitude, 200
+: 2700000000, qHeartbeat, 80
+: 2700000000, qStepsSleep, 40
+
+# 13:00 (468 000 ms) - Tennis
+: 4680000000, qActivityType, 300
+: 4680000000, qHeartbeat, 150
+: 4680000000, qCalories, 200
+: 4680000000, qLongitude, 298
+: 4680000000, qLatitude, 195
+: 4680000000, qStepsSleep, 100
+
+# 14:30 (522 000 ms) - Work
+: 5220000000, qActivityType, 0
+: 5220000000, qCalories, 0
+: 5220000000, qHeartbeat, 85
+: 5220000000, qLongitude, 300
+: 5220000000, qLatitude, 200
+: 5220000000, qStepsSleep, 20
+
+# 19:00 (684 000 ms) - Jog
+: 6840000000, qActivityType, 200
+: 6840000000, qHeartbeat, 160
+: 6840000000, qCalories, 100
+: 6840000000, qLongitude, 295
+: 6840000000, qLatitude, 192
+
+# 20:00 (720 000 ms) - Relaxing
+: 7200000000, qActivityType, 0
+: 7200000000, qCalories, 0
+: 7200000000, qHeartbeat, 75
+: 7200000000, qLongitude, 290
+: 7200000000, qLatitude, 190
+: 7200000000, qStepsSleep, 10
+
+# 23:00 (828 000 ms) - Sleeping
+: 8280000000, sSleepMode, 1
+: 8280000000, qHeartbeat, 60
+: 8280000000, qStepsSleep, 350
+
+# 24:00 (864 000 ms) - End of simulation
+: 8640000000, qHeartbeat, 55
+: 8640000000, qStepsSleep, 800

@@ -21,3 +21,4 @@ sensor/misc/*
 !sensor/misc/EBSimUnoEthCurses
 !sensor/misc/emulino.eeprom
 !sensor/misc/infile.txt
+!sensor/misc/experimental-infiles/

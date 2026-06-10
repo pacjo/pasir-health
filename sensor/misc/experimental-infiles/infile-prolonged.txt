@@ -1,0 +1,85 @@
++ qHeartbeat,quantity,Z0
++ qLongitude,quantity,Z1
++ qLatitude,quantity,Z2
++ qCalories,quantity,Z3
++ qActivityType,quantity,Z4
++ qStepsSleep,quantity,Z5
++ sSleepMode,status,D0
+
+# 00:00 (0 ms) - Deep sleep
+: 0, sSleepMode, 1
+: 0, qHeartbeat, 55
+: 0, qActivityType, 0
+: 0, qCalories, 0
+: 0, qStepsSleep, 800
+: 0, qLongitude, 300
+: 0, qLatitude, 200
+
+# 02:00 (72 000 ms) - REM
+: 720000000, qStepsSleep, 1023
+: 720000000, qHeartbeat, 65
+
+# 05:00 (180 000 ms) - Light sleep
+: 1800000000, qStepsSleep, 300
+: 1800000000, qHeartbeat, 60
+
+# 07:00 (252 000 ms) - Waking up
+: 2520000000, sSleepMode, 0
+: 2520000000, qHeartbeat, 75
+: 2520000000, qStepsSleep, 20
+
+# 08:00 (288 000 ms) - Jog
+: 2880000000, qActivityType, 200
+: 2880000000, qHeartbeat, 150
+: 2880000000, qCalories, 75
+: 2880000000, qLongitude, 301
+: 2880000000, qLatitude, 201
+
+# 08:30 (306 000 ms) - Middle of jog
+: 3060000000, qHeartbeat, 165
+: 3060000000, qLongitude, 302
+: 3060000000, qStepsSleep, 100
+
+# 09:00 (324 000 ms) - End of jog, work
+: 3240000000, qActivityType, 0
+: 3240000000, qCalories, 0
+: 3240000000, qHeartbeat, 80
+: 3240000000, qLongitude, 305
+: 3240000000, qLatitude, 205
+: 3240000000, qStepsSleep, 0
+
+: 4250000000, qStepsSleep, 15
+
+# 12:00 (432 000 ms) - Lunch
+: 4320000000, qHeartbeat, 75
+: 4320000000, qStepsSleep, 0
+
+: 4500000000, qStepsSleep, 15
+
+# 17:00 (612 000 ms) - Tennis
+: 6120000000, qActivityType, 300
+: 6120000000, qHeartbeat, 130
+: 6120000000, qCalories, 50
+: 3240000000, qStepsSleep, 30
+
+: 6000000000, qStepsSleep, 15
+
+# 18:30 (666 000 ms) - Video games
+: 6660000000, qActivityType, 400
+: 6660000000, qCalories, 0
+: 6660000000, qHeartbeat, 90
+: 6660000000, qLongitude, 300
+: 6660000000, qLatitude, 200
+: 6660000000, qStepsSleep, 0
+
+# 22:00 (792 000 ms) - Sleeping
+: 7920000000, sSleepMode, 1
+: 7920000000, qActivityType, 0
+: 7920000000, qHeartbeat, 65
+: 7920000000, qStepsSleep, 300
+
+# 23:00 (828 000 ms) - Deep sleep
+: 8280000000, qStepsSleep, 800
+
+# 24:00 (864 000 ms) - End of simulation
+: 8640000000, qHeartbeat, 55

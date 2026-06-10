@@ -1,0 +1,48 @@
++ qHeartbeat,quantity,Z0
++ qLongitude,quantity,Z1
++ qLatitude,quantity,Z2
++ qCalories,quantity,Z3
++ qActivityType,quantity,Z4
++ qStepsSleep,quantity,Z5
++ sSleepMode,status,D0
+
+# 00:00 (0 ms) - Video games
+: 0, sSleepMode, 0
+: 0, qHeartbeat, 95
+: 0, qActivityType, 400
+: 0, qCalories, 0
+: 0, qStepsSleep, 0
+: 0, qLongitude, 310
+: 0, qLatitude, 205
+
+# 03:00 (108 000 ms) - Sleeping
+: 1080000000, sSleepMode, 1
+: 1080000000, qActivityType, 0
+: 1080000000, qHeartbeat, 65
+: 1080000000, qStepsSleep, 400
+
+# 04:00 (144 000 ms) - Deep sleep
+: 1440000000, qStepsSleep, 850
+: 1440000000, qHeartbeat, 55
+
+# 07:00 (252 000 ms) - REM
+: 2520000000, qStepsSleep, 1050
+: 2520000000, qHeartbeat, 70
+
+# 11:00 (396 000 ms) - Waking up
+: 3960000000, sSleepMode, 0
+: 3960000000, qHeartbeat, 80
+: 3960000000, qStepsSleep, 10
+
+# 12:00 (432 000 ms) - Lunch
+: 4320000000, qHeartbeat, 85
+: 4320000000, qStepsSleep, 20
+
+: 5000000000, qStepsSleep, 0
+
+# 20:00 (720 000 ms) - Video games
+: 7200000000, qActivityType, 400
+: 7200000000, qHeartbeat, 90
+
+# 24:00 (864 000 ms) - End of simulation
+: 8640000000, qHeartbeat, 88
