@@ -46,6 +46,14 @@ run_sensor sensor_id:
         [ -f "$file" ] && ln -s "$file" .
     done
 
+    # link sensor_id specific infile
+    infile="../infiles/{{ sensor_id }}.txt"
+    if [ -f "$infile" ]; then
+        ln -s "$infile" infile.txt
+    else
+        echo "Warning: no infile found for sensor_id {{ sensor_id }}"
+    fi
+
     # run emulino
     EBSimUnoEthCurses -ip 127.0.0.1 ../../.pio/build/uno/firmware.hex
 
